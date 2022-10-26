@@ -53,7 +53,7 @@ class BaseClient:
 
         # Use environment variables as fallback
         config = {
-            "project_key": project_key,
+            "project_key": project_key or "example-project",
             "client_id": client_id,
             "client_secret": client_secret,
             "url": url,
@@ -231,9 +231,3 @@ class BaseClient:
             sys.platform,
             arch,
         )
-
-
-class Client(BaseClient):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._base_url = f"{self._config['url']}/{self._config['project_key']}/"
