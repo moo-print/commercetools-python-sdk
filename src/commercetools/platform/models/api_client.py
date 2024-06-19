@@ -28,7 +28,7 @@ class ApiClient(_BaseType):
     last_used_at: typing.Optional[datetime.date]
     #: If set, the Client will be deleted on (or shortly after) this point in time.
     delete_at: typing.Optional[datetime.datetime]
-    #: Date and time (UTC) the APIClient was initially created at.
+    #: Date and time (UTC) the APIClient was initially created.
     created_at: typing.Optional[datetime.datetime]
     #: Expiration time in seconds for each access token obtained by the APIClient. Only present when set with the [APIClientDraft](ctp:api:type:ApiClientDraft). If not present the default value applies.
     access_token_validity_seconds: typing.Optional[int]

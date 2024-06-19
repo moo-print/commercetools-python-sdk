@@ -74,9 +74,9 @@ __all__ = [
 
 
 class Payment(BaseResource):
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that last modified the Payment.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the Payment.
     created_by: typing.Optional["CreatedBy"]
     #: Reference to a [Customer](ctp:api:type:Customer) associated with the Payment.
     customer: typing.Optional["CustomerReference"]
@@ -874,7 +874,7 @@ class PaymentChangeTransactionTimestampAction(PaymentUpdateAction):
 
 
 class PaymentSetAmountPaidAction(PaymentUpdateAction):
-    #: Draft type that stores amounts only in cent precision for the specified currency.
+    #: Draft object to store money in cent amounts for a specific currency.
     amount: typing.Optional["Money"]
 
     def __init__(self, *, amount: typing.Optional["Money"] = None):
@@ -897,7 +897,7 @@ class PaymentSetAmountPaidAction(PaymentUpdateAction):
 
 
 class PaymentSetAmountRefundedAction(PaymentUpdateAction):
-    #: Draft type that stores amounts only in cent precision for the specified currency.
+    #: Draft object to store money in cent amounts for a specific currency.
     amount: typing.Optional["Money"]
 
     def __init__(self, *, amount: typing.Optional["Money"] = None):
@@ -944,7 +944,7 @@ class PaymentSetAnonymousIdAction(PaymentUpdateAction):
 
 
 class PaymentSetAuthorizationAction(PaymentUpdateAction):
-    #: Draft type that stores amounts only in cent precision for the specified currency.
+    #: Draft object to store money in cent amounts for a specific currency.
     amount: typing.Optional["Money"]
     until: typing.Optional[datetime.datetime]
 

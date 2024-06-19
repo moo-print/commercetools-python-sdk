@@ -57,6 +57,7 @@ class ByProjectKeyInStoreKeyByStoreKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["CartPagedQueryResponse"]:
+        """Returns all Carts that match a given Query Predicate and contain either a matching `customerId` or `anonymousId` in a Store."""
         params = {
             "expand": expand,
             "sort": sort,
@@ -91,7 +92,7 @@ class ByProjectKeyInStoreKeyByStoreKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional[None]:
-        """Checks if a Cart exists for a given Query Predicate. Returns a `200 OK` status if any Carts match the Query Predicate or a `404 Not Found` otherwise."""
+        """Checks if a Cart exists for a Store that matches the given Query Predicate, and contains a matching `customerId` or `anonymousId`. Returns a `200 OK` status if any Carts match these conditions, or a `404 Not Found` otherwise."""
         headers = {} if headers is None else headers
         response = self._client._head(
             endpoint=f"/{self._project_key}/in-store/key={self._store_key}/me/carts",
@@ -116,7 +117,9 @@ class ByProjectKeyInStoreKeyByStoreKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["Cart"]:
-        """The `store` field in the created [Cart](ctp:api:type:Cart) is set to the Store specified by the `storeKey` path parameter.
+        """Creates a Cart in the specified Store for a given `customerId` or `anonymousId`.
+
+        The `store` field in the created [Cart](ctp:api:type:Cart) is set to the Store specified by the `storeKey` path parameter.
 
         Specific Error Codes: [CountryNotConfiguredInStore](ctp:api:type:CountryNotConfiguredInStoreError)
 

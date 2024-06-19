@@ -1008,7 +1008,10 @@ class ProductVariantAvailabilitySchema(helpers.BaseSchema):
         load_default=None,
     )
     is_on_stock = marshmallow.fields.Boolean(
-        allow_none=True, load_default=None, data_key="isOnStock"
+        allow_none=True,
+        metadata={"omit_empty": True},
+        load_default=None,
+        data_key="isOnStock",
     )
     restockable_in_days = marshmallow.fields.Integer(
         allow_none=True,

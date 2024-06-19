@@ -67,10 +67,10 @@ if typing.TYPE_CHECKING:
         Image,
         LastModifiedBy,
         LocalizedString,
-        Money,
         Price,
         PriceTier,
         Reference,
+        TypedMoney,
     )
     from .customer import Customer, CustomerReference
     from .customer_group import CustomerGroupReference
@@ -614,9 +614,9 @@ class ContainerAndKey(_BaseType):
 class Message(BaseResource):
     """Base representation of a Message containing common fields to all [Message Types](/../api/projects/messages#message-types)."""
 
-    #: Value of `createdBy`.
+    #: IDs and references that last modified the Message.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the Message.
     created_by: typing.Optional["CreatedBy"]
     #: Message number in relation to other Messages for a given resource. The `sequenceNumber` of the next Message for the resource is the successor of the `sequenceNumber` of the current Message. Meaning, the `sequenceNumber` of the next Message equals the `sequenceNumber` of the current Message + 1.
     #: `sequenceNumber` can be used to ensure that Messages are processed in the correct order for a particular resource.
@@ -7077,7 +7077,7 @@ class CustomLineItemStateTransitionMessage(OrderMessage):
     custom_line_item_id: str
     #: User-defined unique identifier of the [Custom Line Item](ctp:api:type:CustomLineItem).
     custom_line_item_key: typing.Optional[str]
-    #: Date and time (UTC) when the transition of the [Custom Line Item](ctp:api:type:CustomLineItem) [State](ctp:api:type:State) was performed.
+    #: Date and time (UTC) the transition of the [Custom Line Item](ctp:api:type:CustomLineItem) [State](ctp:api:type:State) was performed.
     transition_date: datetime.datetime
     #: Number of [Custom Line Items](ctp:api:type:CustomLineItem) for which the [State](ctp:api:type:State) was transitioned.
     quantity: int
@@ -7392,7 +7392,7 @@ class LineItemStateTransitionMessage(OrderMessage):
     line_item_id: str
     #: User-defined unique identifier of the LineItem.
     line_item_key: typing.Optional[str]
-    #: Date and time (UTC) when the transition of the [Line Item](ctp:api:type:LineItem) [State](ctp:api:type:State) was performed.
+    #: Date and time (UTC) the transition of the [Line Item](ctp:api:type:LineItem) [State](ctp:api:type:State) was performed.
     transition_date: datetime.datetime
     #: Number of [Line Items](ctp:api:type:LineItem) for which the [State](ctp:api:type:State) was transitioned.
     quantity: int
@@ -8666,7 +8666,7 @@ class OrderLineItemDiscountSetMessage(OrderMessage):
     #: Array of [DiscountedLineItemPriceForQuantity](ctp:api:type:DiscountedLineItemPriceForQuantity) after the Discount recalculation.
     discounted_price_per_quantity: typing.List["DiscountedLineItemPriceForQuantity"]
     #: Total Price of the [Line Item](ctp:api:type:LineItem) after the Discount recalculation.
-    total_price: "Money"
+    total_price: "CentPrecisionMoney"
     #: [TaxedItemPrice](ctp:api:type:TaxedItemPrice) of the [Line Item](ctp:api:type:LineItem) after the Discount recalculation.
     taxed_price: typing.Optional["TaxedItemPrice"]
     #: Total taxed prices based on the quantity of Line Item assigned to each [Shipping Method](ctp:api:type:ShippingMethod). Only applicable for Carts with `Multiple` [ShippingMode](ctp:api:type:ShippingMode).
@@ -8693,7 +8693,7 @@ class OrderLineItemDiscountSetMessage(OrderMessage):
         discounted_price_per_quantity: typing.List[
             "DiscountedLineItemPriceForQuantity"
         ],
-        total_price: "Money",
+        total_price: "CentPrecisionMoney",
         taxed_price: typing.Optional["TaxedItemPrice"] = None,
         taxed_price_portions: typing.List["MethodTaxedPrice"]
     ):
@@ -10377,7 +10377,7 @@ class ProductPriceAddedMessage(Message):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was added.
     variant_id: int
-    #: The [Embedded Price](/projects/products#embedded-price) that was added to the [ProductVariant](ctp:api:type:ProductVariant).
+    #: The Embedded Price that was added to the [ProductVariant](ctp:api:type:ProductVariant).
     price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
@@ -10438,13 +10438,13 @@ class ProductPriceChangedMessage(Message):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was changed.
     variant_id: int
-    #: The current [Embedded Price](/projects/products#embedded-price) before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The current Embedded Price before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     old_price: "Price"
-    #: The [Embedded Price](/projects/products#embedded-price) after the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The Embedded Price after the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     new_price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
-    #: The staged [Embedded Price](/projects/products#embedded-price) before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The staged Embedded Price before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     old_staged_price: typing.Optional["Price"]
 
     def __init__(
@@ -10556,7 +10556,7 @@ class ProductPriceDiscountsSetMessage(Message):
 
 
 class ProductPriceDiscountsSetUpdatedPrice(_BaseType):
-    """Details about a [Embedded Price](/projects/products#embedded-price) that was updated due to a Discount. Specific to [Product Price Discounts Set](ctp:api:type:ProductPriceDiscountsSetMessage) Message."""
+    """Details about an [Embedded Price](ctp:api:type:Price) that was updated due to a Discount. Specific to [Product Price Discounts Set](ctp:api:type:ProductPriceDiscountsSetMessage) Message."""
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Discount was set.
     variant_id: int
@@ -10803,7 +10803,7 @@ class ProductPriceRemovedMessage(Message):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was removed.
     variant_id: int
-    #: The [Embedded Price](/projects/products#embedded-price) that was removed from the [ProductVariant](ctp:api:type:ProductVariant).
+    #: The Embedded Price that was removed from the [ProductVariant](ctp:api:type:ProductVariant).
     price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
@@ -14239,12 +14239,12 @@ class StandalonePriceValueChangedMessage(Message):
     """Generated after a successful [Change Value](ctp:api:type:StandalonePriceChangeValueAction) update action."""
 
     #: The new value of the updated [StandalonePrice](ctp:api:type:StandalonePrice).
-    value: "Money"
+    value: "TypedMoney"
     #: Whether the new value was applied to the current or the staged representation of the StandalonePrice. Staged changes are stored on the [StagedStandalonePrice](ctp:api:type:StagedStandalonePrice).
     staged: bool
     #: The old value of the updated [StandalonePrice](ctp:api:type:StandalonePrice).
     #: Present on Messages created after 3 February 2023. Optional for backwards compatibility.
-    old_value: typing.Optional["Money"]
+    old_value: typing.Optional["TypedMoney"]
 
     def __init__(
         self,
@@ -14261,9 +14261,9 @@ class StandalonePriceValueChangedMessage(Message):
         resource_user_provided_identifiers: typing.Optional[
             "UserProvidedIdentifiers"
         ] = None,
-        value: "Money",
+        value: "TypedMoney",
         staged: bool,
-        old_value: typing.Optional["Money"] = None
+        old_value: typing.Optional["TypedMoney"] = None
     ):
         self.value = value
         self.staged = staged
@@ -18669,7 +18669,7 @@ class CustomLineItemStateTransitionMessagePayload(OrderMessagePayload):
     custom_line_item_id: str
     #: User-defined unique identifier of the [Custom Line Item](ctp:api:type:CustomLineItem).
     custom_line_item_key: typing.Optional[str]
-    #: Date and time (UTC) when the transition of the [Custom Line Item](ctp:api:type:CustomLineItem) [State](ctp:api:type:State) was performed.
+    #: Date and time (UTC) the transition of the [Custom Line Item](ctp:api:type:CustomLineItem) [State](ctp:api:type:State) was performed.
     transition_date: datetime.datetime
     #: Number of [Custom Line Items](ctp:api:type:CustomLineItem) for which the [State](ctp:api:type:State) was transitioned.
     quantity: int
@@ -18860,7 +18860,7 @@ class LineItemStateTransitionMessagePayload(OrderMessagePayload):
     line_item_id: str
     #: User-defined unique identifier of the LineItem.
     line_item_key: typing.Optional[str]
-    #: Date and time (UTC) when the transition of the [Line Item](ctp:api:type:LineItem) [State](ctp:api:type:State) was performed.
+    #: Date and time (UTC) the transition of the [Line Item](ctp:api:type:LineItem) [State](ctp:api:type:State) was performed.
     transition_date: datetime.datetime
     #: Number of [Line Items](ctp:api:type:LineItem) for which the [State](ctp:api:type:State) was transitioned.
     quantity: int
@@ -19569,7 +19569,7 @@ class OrderLineItemDiscountSetMessagePayload(OrderMessagePayload):
     #: Array of [DiscountedLineItemPriceForQuantity](ctp:api:type:DiscountedLineItemPriceForQuantity) after the Discount recalculation.
     discounted_price_per_quantity: typing.List["DiscountedLineItemPriceForQuantity"]
     #: Total Price of the [Line Item](ctp:api:type:LineItem) after the Discount recalculation.
-    total_price: "Money"
+    total_price: "CentPrecisionMoney"
     #: [TaxedItemPrice](ctp:api:type:TaxedItemPrice) of the [Line Item](ctp:api:type:LineItem) after the Discount recalculation.
     taxed_price: typing.Optional["TaxedItemPrice"]
     #: Total taxed prices based on the quantity of Line Item assigned to each [Shipping Method](ctp:api:type:ShippingMethod). Only applicable for Carts with `Multiple` [ShippingMode](ctp:api:type:ShippingMode).
@@ -19584,7 +19584,7 @@ class OrderLineItemDiscountSetMessagePayload(OrderMessagePayload):
         discounted_price_per_quantity: typing.List[
             "DiscountedLineItemPriceForQuantity"
         ],
-        total_price: "Money",
+        total_price: "CentPrecisionMoney",
         taxed_price: typing.Optional["TaxedItemPrice"] = None,
         taxed_price_portions: typing.List["MethodTaxedPrice"]
     ):
@@ -20547,7 +20547,7 @@ class ProductPriceAddedMessagePayload(MessagePayload):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was added.
     variant_id: int
-    #: The [Embedded Price](/projects/products#embedded-price) that was added to the [ProductVariant](ctp:api:type:ProductVariant).
+    #: The Embedded Price that was added to the [ProductVariant](ctp:api:type:ProductVariant).
     price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
@@ -20578,13 +20578,13 @@ class ProductPriceChangedMessagePayload(MessagePayload):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was changed.
     variant_id: int
-    #: The current [Embedded Price](/projects/products#embedded-price) before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The current Embedded Price before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     old_price: "Price"
-    #: The [Embedded Price](/projects/products#embedded-price) after the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The Embedded Price after the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     new_price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
-    #: The staged [Embedded Price](/projects/products#embedded-price) before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
+    #: The staged Embedded Price before the [Change Embedded Price](ctp:api:type:ProductChangePriceAction) update action.
     old_staged_price: typing.Optional["Price"]
 
     def __init__(
@@ -20772,7 +20772,7 @@ class ProductPriceRemovedMessagePayload(MessagePayload):
 
     #: Unique identifier of the [ProductVariant](ctp:api:type:ProductVariant) for which the Price was removed.
     variant_id: int
-    #: The [Embedded Price](/projects/products#embedded-price) that was removed from the [ProductVariant](ctp:api:type:ProductVariant).
+    #: The Embedded Price that was removed from the [ProductVariant](ctp:api:type:ProductVariant).
     price: "Price"
     #: Whether the update was only applied to the staged [Product Projection](ctp:api:type:ProductProjection).
     staged: bool
@@ -22074,7 +22074,7 @@ class ReviewStateTransitionMessagePayload(MessagePayload):
 
 
 class ShoppingListStoreSetMessagePayload(MessagePayload):
-    #: [Reference](ctp:api:type:Reference) to a [Store](ctp:api:type:Store) by its key.
+    #: [KeyReference](ctp:api:type:KeyReference) to a [Store](ctp:api:type:Store).
     store: "StoreKeyReference"
 
     def __init__(self, *, store: "StoreKeyReference"):
@@ -22680,19 +22680,19 @@ class StandalonePriceValueChangedMessagePayload(MessagePayload):
     """Generated after a successful [Change Value](ctp:api:type:StandalonePriceChangeValueAction) update action."""
 
     #: The new value of the updated [StandalonePrice](ctp:api:type:StandalonePrice).
-    value: "Money"
+    value: "TypedMoney"
     #: Whether the new value was applied to the current or the staged representation of the StandalonePrice. Staged changes are stored on the [StagedStandalonePrice](ctp:api:type:StagedStandalonePrice).
     staged: bool
     #: The old value of the updated [StandalonePrice](ctp:api:type:StandalonePrice).
     #: Present on Messages created after 3 February 2023. Optional for backwards compatibility.
-    old_value: typing.Optional["Money"]
+    old_value: typing.Optional["TypedMoney"]
 
     def __init__(
         self,
         *,
-        value: "Money",
+        value: "TypedMoney",
         staged: bool,
-        old_value: typing.Optional["Money"] = None
+        old_value: typing.Optional["TypedMoney"] = None
     ):
         self.value = value
         self.staged = staged

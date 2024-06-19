@@ -108,6 +108,7 @@ __all__ = [
     "GraphQLInvalidSubjectError",
     "GraphQLInvalidTokenError",
     "GraphQLLanguageUsedInStoresError",
+    "GraphQLLockedFieldError",
     "GraphQLMatchingPriceNotFoundError",
     "GraphQLMaxCartDiscountsReachedError",
     "GraphQLMaxResourceLimitExceededError",
@@ -152,6 +153,7 @@ __all__ = [
     "InvalidSubjectError",
     "InvalidTokenError",
     "LanguageUsedInStoresError",
+    "LockedFieldError",
     "MatchingPriceNotFoundError",
     "MaxCartDiscountsReachedError",
     "MaxResourceLimitExceededError",
@@ -401,6 +403,10 @@ class ErrorObject(_BaseType):
             from ._schemas.error import LanguageUsedInStoresErrorSchema
 
             return LanguageUsedInStoresErrorSchema().load(data)
+        if data["code"] == "LockedField":
+            from ._schemas.error import LockedFieldErrorSchema
+
+            return LockedFieldErrorSchema().load(data)
         if data["code"] == "MatchingPriceNotFound":
             from ._schemas.error import MatchingPriceNotFoundErrorSchema
 
@@ -1668,7 +1674,7 @@ class FeatureRemovedError(ErrorObject):
 class GeneralError(ErrorObject):
     """Returned when a server-side problem occurs before or after data persistence. In some cases, the requested action may successfully complete after the error is returned. Therefore, it is recommended to verify the status of the requested resource after receiving a 500 error.
 
-    If you encounter this error, report it using the [Support Portal](https://support.commercetools.com).
+    If you encounter this error, report it to the [Composable Commerce support team](https://support.commercetools.com).
 
     """
 
@@ -1995,6 +2001,33 @@ class LanguageUsedInStoresError(ErrorObject):
         return LanguageUsedInStoresErrorSchema().dump(self)
 
 
+class LockedFieldError(ErrorObject):
+    """Returned when two [Customers](ctp:api:type:Customer) are simultaneously created or updated with the same email address.
+
+    To confirm if the operation was successful, repeat the request.
+
+    """
+
+    #: Field that is currently locked.
+    field: str
+
+    def __init__(self, *, message: str, field: str, **kwargs):
+        self.field = field
+        kwargs.pop("code", None)
+        super().__init__(message=message, code="LockedField", **kwargs)
+
+    @classmethod
+    def deserialize(cls, data: typing.Dict[str, typing.Any]) -> "LockedFieldError":
+        from ._schemas.error import LockedFieldErrorSchema
+
+        return LockedFieldErrorSchema().load(data)
+
+    def serialize(self) -> typing.Dict[str, typing.Any]:
+        from ._schemas.error import LockedFieldErrorSchema
+
+        return LockedFieldErrorSchema().dump(self)
+
+
 class MatchingPriceNotFoundError(ErrorObject):
     """Returned when the Product Variant does not have a Price according to the [Product](ctp:api:type:Product) `priceMode` value for a selected currency, country, Customer Group, or Channel.
 
@@ -2193,7 +2226,7 @@ class MissingTaxRateForCountryError(ErrorObject):
 
     The error is returned as a failed response to:
 
-    - [Set Default Shipping Address](ctp:api:type:CustomerSetDefaultShippingAddressAction), [Add LineItem](ctp:api:type:CartAddLineItemAction), [Add CustomLineItem](ctp:api:type:CartAddCustomLineItemAction), [Set Shipping Address](ctp:api:type:CartSetShippingAddressAction), [Add LineItem](ctp:api:type:MyCartAddLineItemAction), [Add LineItem](ctp:api:type:StagedOrderAddLineItemAction), and [Add CustomLineItem](ctp:api:type:StagedOrderAddCustomLineItemAction) update actions
+    - [Add LineItem](ctp:api:type:CartAddLineItemAction), [Add CustomLineItem](ctp:api:type:CartAddCustomLineItemAction), [Set Shipping Address](ctp:api:type:CartSetShippingAddressAction), [Add LineItem](ctp:api:type:MyCartAddLineItemAction), [Add LineItem](ctp:api:type:StagedOrderAddLineItemAction), and [Add CustomLineItem](ctp:api:type:StagedOrderAddCustomLineItemAction) update actions
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/orders:POST) requests.
 
     """
@@ -2447,7 +2480,7 @@ class PendingOperationError(ErrorObject):
     """Returned when a previous conflicting operation is still pending and needs to finish before the request can succeed.
 
     The client application should retry the request with exponential backoff up to a point where further delay is unacceptable.
-    If the error persists, report it using the [Support Portal](https://support.commercetools.com).
+    If the error persists, report it to the [Composable Commerce support team](https://support.commercetools.com).
 
     """
 
@@ -2469,12 +2502,14 @@ class PendingOperationError(ErrorObject):
 
 
 class PriceChangedError(ErrorObject):
-    """Returned when the Price, Tax Rate, or Shipping Rate of some Line Items changed since they were last added to the Cart.
+    """Returned when the Price or Tax Rate of some Line Items or Shipping Rate of some Shipping Methods changed since they were last added to the Cart.
 
     The error is returned as a failed response to:
 
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/orders:POST) requests on Orders.
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/me/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/me/orders:POST) requests on My Orders.
+    - [Create Order from Quote](ctp:api:endpoint:/{projectKey}/orders/quotes:POST) request on Orders.
+    - [Create Order from Quote](ctp:api:endpoint:/{projectKey}/me/orders/quotes:POST) request on My Orders.
 
     """
 
@@ -3216,6 +3251,10 @@ class GraphQLErrorObject(_BaseType):
             from ._schemas.error import GraphQLLanguageUsedInStoresErrorSchema
 
             return GraphQLLanguageUsedInStoresErrorSchema().load(data)
+        if data["code"] == "LockedField":
+            from ._schemas.error import GraphQLLockedFieldErrorSchema
+
+            return GraphQLLockedFieldErrorSchema().load(data)
         if data["code"] == "MatchingPriceNotFound":
             from ._schemas.error import GraphQLMatchingPriceNotFoundErrorSchema
 
@@ -4347,7 +4386,7 @@ class GraphQLFeatureRemovedError(GraphQLErrorObject):
 class GraphQLGeneralError(GraphQLErrorObject):
     """Returned when a server-side problem occurs before or after data persistence. In some cases, the requested action may successfully complete after the error is returned. Therefore, it is recommended to verify the status of the requested resource after receiving a 500 error.
 
-    If you encounter this error, report it using the [Support Portal](https://support.commercetools.com).
+    If you encounter this error, report it to the [Composable Commerce support team](https://support.commercetools.com).
 
     """
 
@@ -4685,6 +4724,35 @@ class GraphQLLanguageUsedInStoresError(GraphQLErrorObject):
         return GraphQLLanguageUsedInStoresErrorSchema().dump(self)
 
 
+class GraphQLLockedFieldError(GraphQLErrorObject):
+    """Returned when two [Customers](ctp:api:type:Customer) are simultaneously created or updated with the same email address.
+
+    To confirm if the operation was successful, repeat the request.
+
+    """
+
+    #: Field that is currently locked.
+    field: str
+
+    def __init__(self, *, field: str, **kwargs):
+        self.field = field
+        kwargs.pop("code", None)
+        super().__init__(code="LockedField", **kwargs)
+
+    @classmethod
+    def deserialize(
+        cls, data: typing.Dict[str, typing.Any]
+    ) -> "GraphQLLockedFieldError":
+        from ._schemas.error import GraphQLLockedFieldErrorSchema
+
+        return GraphQLLockedFieldErrorSchema().load(data)
+
+    def serialize(self) -> typing.Dict[str, typing.Any]:
+        from ._schemas.error import GraphQLLockedFieldErrorSchema
+
+        return GraphQLLockedFieldErrorSchema().dump(self)
+
+
 class GraphQLMatchingPriceNotFoundError(GraphQLErrorObject):
     """Returned when the Product Variant does not have a Price according to the [Product](ctp:api:type:Product) `priceMode` value for a selected currency, country, Customer Group, or Channel.
 
@@ -4881,7 +4949,7 @@ class GraphQLMissingTaxRateForCountryError(GraphQLErrorObject):
 
     The error is returned as a failed response to:
 
-    - [Set Default Shipping Address](ctp:api:type:CustomerSetDefaultShippingAddressAction), [Add LineItem](ctp:api:type:CartAddLineItemAction), [Add CustomLineItem](ctp:api:type:CartAddCustomLineItemAction), [Set Shipping Address](ctp:api:type:CartSetShippingAddressAction), [Add LineItem](ctp:api:type:MyCartAddLineItemAction), [Add LineItem](ctp:api:type:StagedOrderAddLineItemAction), and [Add CustomLineItem](ctp:api:type:StagedOrderAddCustomLineItemAction) update actions
+    - [Add LineItem](ctp:api:type:CartAddLineItemAction), [Add CustomLineItem](ctp:api:type:CartAddCustomLineItemAction), [Set Shipping Address](ctp:api:type:CartSetShippingAddressAction), [Add LineItem](ctp:api:type:MyCartAddLineItemAction), [Add LineItem](ctp:api:type:StagedOrderAddLineItemAction), and [Add CustomLineItem](ctp:api:type:StagedOrderAddCustomLineItemAction) update actions
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/orders:POST) requests.
 
     """
@@ -5132,7 +5200,7 @@ class GraphQLPendingOperationError(GraphQLErrorObject):
     """Returned when a previous conflicting operation is still pending and needs to finish before the request can succeed.
 
     The client application should retry the request with exponential backoff up to a point where further delay is unacceptable.
-    If the error persists, report it using the [Support Portal](https://support.commercetools.com).
+    If the error persists, report it to the [Composable Commerce support team](https://support.commercetools.com).
 
     """
 
@@ -5156,12 +5224,14 @@ class GraphQLPendingOperationError(GraphQLErrorObject):
 
 
 class GraphQLPriceChangedError(GraphQLErrorObject):
-    """Returned when the Price, Tax Rate, or Shipping Rate of some Line Items changed since they were last added to the Cart.
+    """Returned when the Price or Tax Rate of some Line Items or Shipping Rate of some Shipping Methods changed since they were last added to the Cart.
 
     The error is returned as a failed response to:
 
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/orders:POST) requests on Orders.
     - [Create Order from Cart](ctp:api:endpoint:/{projectKey}/me/orders:POST) and [Create Order in Store from Cart](ctp:api:endpoint:/{projectKey}/in-store/me/orders:POST) requests on My Orders.
+    - [Create Order from Quote](ctp:api:endpoint:/{projectKey}/orders/quotes:POST) request on Orders.
+    - [Create Order from Quote](ctp:api:endpoint:/{projectKey}/me/orders/quotes:POST) request on My Orders.
 
     """
 

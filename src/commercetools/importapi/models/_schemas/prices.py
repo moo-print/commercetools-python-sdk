@@ -116,6 +116,9 @@ class PriceImportSchema(ImportResourceSchema):
     publish = marshmallow.fields.Boolean(
         allow_none=True, metadata={"omit_empty": True}, load_default=None
     )
+    staged = marshmallow.fields.Boolean(
+        allow_none=True, metadata={"omit_empty": True}, load_default=None
+    )
     tiers = helpers.LazyNestedField(
         nested=helpers.absmod(__name__, ".common.PriceTierSchema"),
         allow_none=True,

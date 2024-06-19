@@ -232,11 +232,11 @@ class AssociateRoleInheritanceMode(enum.Enum):
 class BusinessUnit(BaseResource):
     """Generic type to model the fields that all types of Business Units have in common."""
 
-    #: Present on resources updated after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that last modified the BusinessUnit.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the BusinessUnit.
     created_by: typing.Optional["CreatedBy"]
-    #: User-defined unique identifier of the Business Unit.
+    #: User-defined unique and immutable identifier of the Business Unit.
     key: str
     #: Indicates whether the Business Unit can be edited and used in [Orders](/../api/projects/orders).
     status: "BusinessUnitStatus"
@@ -360,7 +360,7 @@ class BusinessUnitAssociateMode(enum.Enum):
 class BusinessUnitDraft(_BaseType):
     """Generic draft type to model those fields all Business Units have in common. The additional fields required for creating a [Company](ctp:api:type:Company) or [Division](ctp:api:type:Division) are represented on [CompanyDraft](ctp:api:type:CompanyDraft) and [DivisionDraft](ctp:api:type:DivisionDraft)."""
 
-    #: User-defined unique identifier for the Business Unit.
+    #: User-defined unique and immutable identifier for the Business Unit.
     key: str
     #: Indicates whether the Business Unit can be edited and used in [Orders](/../api/projects/orders).
     status: typing.Optional["BusinessUnitStatus"]
@@ -455,7 +455,7 @@ class BusinessUnitDraft(_BaseType):
 
 
 class BusinessUnitKeyReference(KeyReference):
-    """[Reference](ctp:api:type:Reference) to a [BusinessUnit](ctp:api:type:BusinessUnit) by its key."""
+    """[KeyReference](ctp:api:type:KeyReference) to a [BusinessUnit](ctp:api:type:BusinessUnit)."""
 
     def __init__(self, *, key: str):
 
@@ -1862,11 +1862,9 @@ class BusinessUnitSetStoresAction(BusinessUnitUpdateAction):
     """
 
     #: [Stores](ctp:api:type:Store) to set. Overrides the current list of Stores.
-    stores: typing.Optional[typing.List["StoreResourceIdentifier"]]
+    stores: typing.List["StoreResourceIdentifier"]
 
-    def __init__(
-        self, *, stores: typing.Optional[typing.List["StoreResourceIdentifier"]] = None
-    ):
+    def __init__(self, *, stores: typing.List["StoreResourceIdentifier"]):
         self.stores = stores
 
         super().__init__(action="setStores")

@@ -49,7 +49,7 @@ __all__ = [
 class ErrorResponse(_BaseType):
     """The response in case of an error."""
 
-    #: The http status code of the response.
+    #: The HTTP status code of the response.
     status_code: int
     #: Describes the error.
     message: str

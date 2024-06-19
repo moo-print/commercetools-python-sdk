@@ -29,15 +29,7 @@ class FrontasticPageRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> "PageDataResponse":
-        """Returns the structure and data of the published page displayed from commercetools Frontend. \
-        
-        Headers&#58;
-        
-        - `Frontastic-Path` - `^/.*$` - Required
-        - `Accept` - `application/json` - Required
-        - `Frontastic-Locale` - [Locale](ctp:frontend-api:type:Locale) - Required
-        
-        """
+        """Returns the structure and data of the published page displayed from commercetools Frontend."""
         headers = {} if headers is None else headers
         response = self._client._get(
             endpoint=f"/frontastic/page", params={}, headers=headers, options=options

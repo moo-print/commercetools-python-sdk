@@ -111,17 +111,20 @@ class PriceImport(ImportResource):
     channel: typing.Optional["ChannelKeyReference"]
     #: Sets a discounted price from an external service.
     discounted: typing.Optional["DiscountedPrice"]
-    #: Only the [Embedded Price](/../api/projects/products#embedded-price) updates will be published to `staged` and `current` projection.
+    #: Only the [Embedded Price](/../api/types#price) updates will be published to `staged` and `current` projection.
     publish: typing.Optional[bool]
+    #: - Set to `false` to update both the [current and staged projections](/../api/projects/productProjections#current--staged) of the [Product](/../api/projects/products#product) with the new Price data.
+    #: - Leave empty or set to `true` to only update the staged projection.
+    staged: typing.Optional[bool]
     #: The tiered prices for this price.
     tiers: typing.Optional[typing.List["PriceTier"]]
     #: The custom fields for this price.
     custom: typing.Optional["Custom"]
-    #: The ProductVariant in which this [Embedded Price](/../api/projects/products#embedded-price) is contained.
+    #: The ProductVariant in which this [Embedded Price](/../api/types#price) is contained.
     #: The Reference to the [ProductVariant](/../api/projects/products#productvariant) with which the [Price](/../api/types#price) is associated.
     #: If referenced ProductVariant does not exist, the `state` of the [ImportOperation](/import-operation#importoperation) will be set to `unresolved` until the necessary ProductVariant is created.
     product_variant: "ProductVariantKeyReference"
-    #: The Product in which the Product Variant containing this [Embedded Price](/../api/projects/products#embedded-price) is contained. Maps to `ProductVariant.product`.
+    #: The Product in which the Product Variant containing this [Embedded Price](/../api/types#price) is contained. Maps to `ProductVariant.product`.
     #: The Reference to the [Product](/../api/projects/products#product) with which the [Price](/../api/types#price) is associated.
     #: If referenced Product does not exist, the `state` of the [ImportOperation](/import-operation#importoperation) will be set to `unresolved` until the necessary Product is created.
     product: "ProductKeyReference"
@@ -138,6 +141,7 @@ class PriceImport(ImportResource):
         channel: typing.Optional["ChannelKeyReference"] = None,
         discounted: typing.Optional["DiscountedPrice"] = None,
         publish: typing.Optional[bool] = None,
+        staged: typing.Optional[bool] = None,
         tiers: typing.Optional[typing.List["PriceTier"]] = None,
         custom: typing.Optional["Custom"] = None,
         product_variant: "ProductVariantKeyReference",
@@ -151,6 +155,7 @@ class PriceImport(ImportResource):
         self.channel = channel
         self.discounted = discounted
         self.publish = publish
+        self.staged = staged
         self.tiers = tiers
         self.custom = custom
         self.product_variant = product_variant

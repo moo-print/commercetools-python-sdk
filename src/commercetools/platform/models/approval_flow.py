@@ -35,9 +35,9 @@ __all__ = [
 
 
 class ApprovalFlow(BaseResource):
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/general-concepts#events-tracked).
+    #: IDs and references that created the ApprovalFlow.
     created_by: typing.Optional["CreatedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/general-concepts#events-tracked).
+    #: IDs and references that last modified the ApprovalFlow.
     last_modified_by: typing.Optional["LastModifiedBy"]
     #: [Order](ctp:api:type:Order) that needs to be approved.
     order: "OrderReference"
@@ -116,7 +116,7 @@ class ApprovalFlow(BaseResource):
 class ApprovalFlowApproval(_BaseType):
     #: Associate who approved the [Approval Flow](ctp:api:type:ApprovalFlow).
     approver: "Associate"
-    #: Date and time (UTC) when the [Approval Flow](ctp:api:type:ApprovalFlow) was approved at.
+    #: Date and time (UTC) the [Approval Flow](ctp:api:type:ApprovalFlow) was approved.
     approved_at: datetime.datetime
 
     def __init__(self, *, approver: "Associate", approved_at: datetime.datetime):
@@ -189,7 +189,7 @@ class ApprovalFlowPagedQueryResponse(_BaseType):
 class ApprovalFlowRejection(_BaseType):
     #: Associate who rejected the [Approval Flow](ctp:api:type:ApprovalFlow).
     rejecter: "Associate"
-    #: Date and time (UTC) when the [Approval Flow](ctp:api:type:ApprovalFlow) was rejected at.
+    #: Date and time (UTC) the [Approval Flow](ctp:api:type:ApprovalFlow) was rejected.
     rejected_at: datetime.datetime
     #: The reason for the rejection of the [Approval Flow](ctp:api:type:ApprovalFlow).
     reason: typing.Optional[str]

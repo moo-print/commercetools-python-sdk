@@ -1095,7 +1095,6 @@ class CartDiscountSetStoresActionSchema(CartDiscountUpdateActionSchema):
         allow_none=True,
         many=True,
         unknown=marshmallow.EXCLUDE,
-        metadata={"omit_empty": True},
         load_default=None,
     )
 

@@ -106,9 +106,7 @@ class ProductDraftImport(ImportResource):
     #: The Reference to the [State](/../api/projects/states#state) with which the ProductDraft is associated.
     #: If referenced State does not exist, the `state` of the [ImportOperation](/import-operation#importoperation) will be set to `unresolved` until the necessary State is created.
     state: typing.Optional["StateKeyReference"]
-    #: If `publish` is set to either `true` or `false`, both staged and current projections are set to the same value provided by the import data.
-    #: If `publish` is not set, the staged projection is set to the provided import data, but the current projection stays unchanged.
-    #: However, if the import data contains no update, that is, if it matches the staged projection of the existing Product, the import induces no change in the existing Product whether `publish` is set or not.
+    #: Determines the published status and current/staged projection of the Product. For more information, see [Managing the published state of Products](/best-practices#managing-the-published-state-of-products).
     publish: typing.Optional[bool]
     #: Determines the type of Prices the API uses. See [ProductPriceMode](/../api/projects/products#productpricemode) for more details. If not provided, the existing `Product.priceMode` is not changed.
     price_mode: typing.Optional["ProductPriceModeEnum"]

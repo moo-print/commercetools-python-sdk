@@ -94,7 +94,7 @@ class ByProjectKeyInStoreKeyByStoreKeyCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["CartPagedQueryResponse"]:
-        """Queries carts in a specific [Store](ctp:api:type:Store)."""
+        """Queries Carts in a specific [Store](ctp:api:type:Store)."""
         params = {
             "expand": expand,
             "sort": sort,

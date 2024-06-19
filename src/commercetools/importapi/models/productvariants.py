@@ -720,6 +720,9 @@ class ProductVariantImport(ImportResource):
     #: If `publish` is not set, the staged projection is set to the provided import data, but the current projection stays unchanged.
     #: However, if the import data contains no update, that is, if it matches the staged projection of the existing Product, the import induces no change in the existing Product whether `publish` is set or not.
     publish: typing.Optional[bool]
+    #: - Set to `false` to update both the [current and staged projections](/../api/projects/productProjections#current--staged) of the [Product](/../api/projects/products#product) with the new Product Variant data.
+    #: - Leave empty or set to `true` to only update the staged projection.
+    staged: typing.Optional[bool]
     #: The [Product](/../api/projects/products#productvariant) to which this Product Variant belongs. Maps to `ProductVariant.product`.
     #: The Reference to the [Product](/../api/projects/products#product) with which the ProductVariant is associated.
     #: If referenced Product does not exist, the `state` of the [ImportOperation](/import-operation#importoperation) will be set to `unresolved` until the necessary Product is created.
@@ -735,6 +738,7 @@ class ProductVariantImport(ImportResource):
         images: typing.Optional[typing.List["Image"]] = None,
         assets: typing.Optional[typing.List["Asset"]] = None,
         publish: typing.Optional[bool] = None,
+        staged: typing.Optional[bool] = None,
         product: "ProductKeyReference"
     ):
         self.sku = sku
@@ -743,6 +747,7 @@ class ProductVariantImport(ImportResource):
         self.images = images
         self.assets = assets
         self.publish = publish
+        self.staged = staged
         self.product = product
 
         super().__init__(key=key)

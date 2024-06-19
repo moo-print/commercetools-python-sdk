@@ -230,7 +230,7 @@ class MyBusinessUnitDraft(_BaseType):
     #: Email address of the Business Unit.
     contact_email: typing.Optional[str]
     #: Custom Fields for the Business Unit.
-    custom: typing.Optional["CustomFields"]
+    custom: typing.Optional["CustomFieldsDraft"]
     #: Addresses used by the Business Unit.
     addresses: typing.Optional[typing.List["BaseAddress"]]
     #: Indexes of entries in `addresses` to set as shipping addresses.
@@ -251,7 +251,7 @@ class MyBusinessUnitDraft(_BaseType):
         unit_type: "BusinessUnitType",
         name: str,
         contact_email: typing.Optional[str] = None,
-        custom: typing.Optional["CustomFields"] = None,
+        custom: typing.Optional["CustomFieldsDraft"] = None,
         addresses: typing.Optional[typing.List["BaseAddress"]] = None,
         shipping_addresses: typing.Optional[typing.List["int"]] = None,
         default_shipping_address: typing.Optional[int] = None,
@@ -444,7 +444,7 @@ class MyCartDraft(_BaseType):
     shipping_mode: typing.Optional["ShippingMode"]
     #: `code` of the existing [DiscountCodes](ctp:api:type:DiscountCode) to add to the Cart.
     discount_codes: typing.Optional[typing.List["str"]]
-    #: Used for [LineItem Price selection](ctp:api:type:LineItemPriceSelection).
+    #: Used for [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection).
     #: If used for [Create Cart in Store](ctp:api:endpoint:/{projectKey}/in-store/me/carts:POST), the provided country must be one of the [Store's](ctp:api:type:Store) `countries`.
     country: typing.Optional[str]
     #: Languages of the Cart.
@@ -683,7 +683,7 @@ class MyCompanyDraft(MyBusinessUnitDraft):
         key: str,
         name: str,
         contact_email: typing.Optional[str] = None,
-        custom: typing.Optional["CustomFields"] = None,
+        custom: typing.Optional["CustomFieldsDraft"] = None,
         addresses: typing.Optional[typing.List["BaseAddress"]] = None,
         shipping_addresses: typing.Optional[typing.List["int"]] = None,
         default_shipping_address: typing.Optional[int] = None,
@@ -947,7 +947,7 @@ class MyDivisionDraft(MyBusinessUnitDraft):
         key: str,
         name: str,
         contact_email: typing.Optional[str] = None,
-        custom: typing.Optional["CustomFields"] = None,
+        custom: typing.Optional["CustomFieldsDraft"] = None,
         addresses: typing.Optional[typing.List["BaseAddress"]] = None,
         shipping_addresses: typing.Optional[typing.List["int"]] = None,
         default_shipping_address: typing.Optional[int] = None,
@@ -1004,7 +1004,7 @@ class MyLineItemDraft(_BaseType):
     #: Used to identify [Inventory entries](/../api/projects/inventory) that must be reserved.
     #: The Channel must have the `InventorySupply` [ChannelRoleEnum](ctp:api:type:ChannelRoleEnum).
     supply_channel: typing.Optional["ChannelResourceIdentifier"]
-    #: Used to [select](ctp:api:type:LineItemPriceSelection) a Product Price.
+    #: Used to [select](/../api/pricing-and-discounts-overview#line-item-price-selection) a Product Price.
     #: The Channel must have the `ProductDistribution` [ChannelRoleEnum](ctp:api:type:ChannelRoleEnum).
     #:
     #: If the Cart is bound to a [Store](ctp:api:type:Store) with `distributionChannels` set,
@@ -2323,7 +2323,7 @@ class MyCartAddItemShippingAddressAction(MyCartUpdateAction):
 class MyCartAddLineItemAction(MyCartUpdateAction):
     """If the Cart contains a [LineItem](ctp:api:type:LineItem) for a Product Variant with the same [LineItemMode](ctp:api:type:LineItemMode), [Custom Fields](/../api/projects/custom-fields), supply and distribution channel, then only the quantity of the existing Line Item is increased.
     If [LineItem](ctp:api:type:LineItem) `shippingDetails` is set, it is merged. All addresses will be present afterwards and, for address keys present in both shipping details, the quantity will be summed up.
-    The [LineItem](ctp:api:type:LineItem) price is set as described in [LineItem Price selection](ctp:api:type:LineItemPriceSelection).
+    The [LineItem](ctp:api:type:LineItem) price is set as described in [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection).
 
     If the Tax Rate is not set, a [MissingTaxRateForCountry](ctp:api:type:MissingTaxRateForCountryError) error is returned.
 
@@ -2354,7 +2354,7 @@ class MyCartAddLineItemAction(MyCartUpdateAction):
     #:
     #: Optional for backwards compatibility reasons.
     added_at: typing.Optional[datetime.datetime]
-    #: Used to [select](ctp:api:type:LineItemPriceSelection) a Product Price.
+    #: Used to [select](/../api/pricing-and-discounts-overview#line-item-price-selection) a Product Price.
     #: The Channel must have the `ProductDistribution` [ChannelRoleEnum](ctp:api:type:ChannelRoleEnum).
     #: If the Cart is bound to a [Store](ctp:api:type:Store) with `distributionChannels` set, the Channel must match one of the Store's distribution channels.
     distribution_channel: typing.Optional["ChannelResourceIdentifier"]
@@ -2643,7 +2643,7 @@ class MyCartRemoveItemShippingAddressAction(MyCartUpdateAction):
 
 
 class MyCartRemoveLineItemAction(MyCartUpdateAction):
-    """The [LineItem](ctp:api:type:LineItem) price is updated as described in [LineItem Price selection](ctp:api:type:LineItemPriceSelection)."""
+    """The [LineItem](ctp:api:type:LineItem) price is updated as described in [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection)."""
 
     #: `id` of the [LineItem](ctp:api:type:LineItem) to update. Either `lineItemId` or `lineItemKey` is required.
     line_item_id: typing.Optional[str]
@@ -2992,7 +2992,7 @@ class MyCartSetLineItemCustomTypeAction(MyCartUpdateAction):
 
 
 class MyCartSetLineItemDistributionChannelAction(MyCartUpdateAction):
-    """Setting a distribution channel for a [LineItem](ctp:api:type:LineItem) can lead to an updated `price` as described in [LineItem Price selection](ctp:api:type:LineItemPriceSelection)."""
+    """Setting a distribution channel for a [LineItem](ctp:api:type:LineItem) can lead to an updated `price` as described in [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection)."""
 
     #: `id` of the [LineItem](ctp:api:type:LineItem) to update. Either `lineItemId` or `lineItemKey` is required.
     line_item_id: typing.Optional[str]
@@ -3131,7 +3131,7 @@ class MyCartSetLocaleAction(MyCartUpdateAction):
 class MyCartSetShippingAddressAction(MyCartUpdateAction):
     """Setting the shipping address also sets the [TaxRate](ctp:api:type:TaxRate) of Line Items and calculates the [TaxedPrice](ctp:api:type:TaxedPrice).
 
-    If a matching price cannot be found for the given shipping address during [Line Item Price selection](ctp:api:type:LineItemPriceSelection),
+    If a matching price cannot be found for the given shipping address during [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection),
     a [MissingTaxRateForCountry](ctp:api:type:MissingTaxRateForCountryError) error is returned.
 
     If you want to allow shipping to states inside a country that are not explicitly covered by a TaxRate,

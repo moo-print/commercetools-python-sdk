@@ -119,7 +119,11 @@ class ByProjectKeyOrdersEditsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["OrderEdit"]:
-        """You can either create multiple Order Edits for an Order and apply them sequentially to an Order, or create multiple Order Edits parallelly (as alternatives to each other) and apply one of them to the Order."""
+        """You can either create multiple Order Edits for an Order and apply them sequentially to an Order, or create multiple Order Edits parallelly (as alternatives to each other) and apply one of them to the Order.
+
+        You can only create an Order Edit if the [InventoryMode](/projects/carts#inventorymode) of the Order and its [LineItems](/projects/carts#lineitem) is `None`.
+
+        """
         headers = {} if headers is None else headers
         response = self._client._post(
             endpoint=f"/{self._project_key}/orders/edits",

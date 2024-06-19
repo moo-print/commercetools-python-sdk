@@ -3167,7 +3167,7 @@ class OrderLineItemDiscountSetMessageSchema(OrderMessageSchema):
         data_key="discountedPricePerQuantity",
     )
     total_price = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+        nested=helpers.absmod(__name__, ".common.CentPrecisionMoneySchema"),
         allow_none=True,
         unknown=marshmallow.EXCLUDE,
         load_default=None,
@@ -5667,17 +5667,31 @@ class StandalonePriceValidUntilSetMessageSchema(MessageSchema):
 
 
 class StandalonePriceValueChangedMessageSchema(MessageSchema):
-    value = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+    value = helpers.Discriminator(
         allow_none=True,
-        unknown=marshmallow.EXCLUDE,
+        discriminator_field=("type", "type"),
+        discriminator_schemas={
+            "centPrecision": helpers.absmod(
+                __name__, ".common.CentPrecisionMoneySchema"
+            ),
+            "highPrecision": helpers.absmod(
+                __name__, ".common.HighPrecisionMoneySchema"
+            ),
+        },
         load_default=None,
     )
     staged = marshmallow.fields.Boolean(allow_none=True, load_default=None)
-    old_value = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+    old_value = helpers.Discriminator(
         allow_none=True,
-        unknown=marshmallow.EXCLUDE,
+        discriminator_field=("type", "type"),
+        discriminator_schemas={
+            "centPrecision": helpers.absmod(
+                __name__, ".common.CentPrecisionMoneySchema"
+            ),
+            "highPrecision": helpers.absmod(
+                __name__, ".common.HighPrecisionMoneySchema"
+            ),
+        },
         metadata={"omit_empty": True},
         load_default=None,
         data_key="oldValue",
@@ -8401,7 +8415,7 @@ class OrderLineItemDiscountSetMessagePayloadSchema(OrderMessagePayloadSchema):
         data_key="discountedPricePerQuantity",
     )
     total_price = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+        nested=helpers.absmod(__name__, ".common.CentPrecisionMoneySchema"),
         allow_none=True,
         unknown=marshmallow.EXCLUDE,
         load_default=None,
@@ -10886,17 +10900,31 @@ class StandalonePriceValidUntilSetMessagePayloadSchema(MessagePayloadSchema):
 
 
 class StandalonePriceValueChangedMessagePayloadSchema(MessagePayloadSchema):
-    value = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+    value = helpers.Discriminator(
         allow_none=True,
-        unknown=marshmallow.EXCLUDE,
+        discriminator_field=("type", "type"),
+        discriminator_schemas={
+            "centPrecision": helpers.absmod(
+                __name__, ".common.CentPrecisionMoneySchema"
+            ),
+            "highPrecision": helpers.absmod(
+                __name__, ".common.HighPrecisionMoneySchema"
+            ),
+        },
         load_default=None,
     )
     staged = marshmallow.fields.Boolean(allow_none=True, load_default=None)
-    old_value = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".common.MoneySchema"),
+    old_value = helpers.Discriminator(
         allow_none=True,
-        unknown=marshmallow.EXCLUDE,
+        discriminator_field=("type", "type"),
+        discriminator_schemas={
+            "centPrecision": helpers.absmod(
+                __name__, ".common.CentPrecisionMoneySchema"
+            ),
+            "highPrecision": helpers.absmod(
+                __name__, ".common.HighPrecisionMoneySchema"
+            ),
+        },
         metadata={"omit_empty": True},
         load_default=None,
         data_key="oldValue",

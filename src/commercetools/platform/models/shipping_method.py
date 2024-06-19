@@ -14,12 +14,12 @@ from .common import BaseResource, Reference, ReferenceTypeId, ResourceIdentifier
 
 if typing.TYPE_CHECKING:
     from .common import (
+        CentPrecisionMoney,
         CreatedBy,
         LastModifiedBy,
         LocalizedString,
         Money,
         ReferenceTypeId,
-        TypedMoney,
     )
     from .tax_category import TaxCategoryReference, TaxCategoryResourceIdentifier
     from .type import (
@@ -92,9 +92,9 @@ class PriceFunction(_BaseType):
 
 
 class ShippingMethod(BaseResource):
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that last modified the ShippingMethod.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the ShippingMethod.
     created_by: typing.Optional["CreatedBy"]
     #: User-defined unique identifier of the ShippingMethod.
     key: typing.Optional[str]
@@ -448,9 +448,9 @@ class ShippingMethodUpdateAction(_BaseType):
 
 class ShippingRate(_BaseType):
     #: Currency amount of the ShippingRate.
-    price: "TypedMoney"
+    price: "CentPrecisionMoney"
     #: [Free shipping](/../api/shipping-delivery-overview#free-shipping) is applied if the sum of the (Custom) Line Item Prices reaches the specified value.
-    free_above: typing.Optional["TypedMoney"]
+    free_above: typing.Optional["CentPrecisionMoney"]
     #: `true` if the ShippingRate matches given [Cart](ctp:api:type:Cart) or [Location](ctp:api:type:Location).
     #: Only appears in response to requests for [Get ShippingMethods for a Cart](ctp:api:endpoint:/{projectKey}/shipping-methods/matching-cart:GET) or
     #: [Get ShippingMethods for a Location](ctp:api:endpoint:/{projectKey}/shipping-methods/matching-location:GET).
@@ -461,8 +461,8 @@ class ShippingRate(_BaseType):
     def __init__(
         self,
         *,
-        price: "TypedMoney",
-        free_above: typing.Optional["TypedMoney"] = None,
+        price: "CentPrecisionMoney",
+        free_above: typing.Optional["CentPrecisionMoney"] = None,
         is_matching: typing.Optional[bool] = None,
         tiers: typing.List["ShippingRatePriceTier"]
     ):
@@ -548,7 +548,7 @@ class ShippingRatePriceTier(_BaseType):
 
 
 class CartClassificationTier(ShippingRatePriceTier):
-    """Used when the ShippingRate maps to an abstract Cart categorization expressed by strings (for example, `Light`, `Medium`, or `Heavy`)."""
+    """The [ShippingRate](ctp:api:type:ShippingRate) maps to an abstract Cart categorization expressed by strings (for example, `Light`, `Medium`, or `Heavy`)."""
 
     #: `key` selected from the `values` of the [CartClassificationType](/projects/project#cartclassificationtype) configured in the Project.
     value: str
@@ -581,7 +581,7 @@ class CartClassificationTier(ShippingRatePriceTier):
 
 
 class CartScoreTier(ShippingRatePriceTier):
-    """Used when the ShippingRate maps to an abstract Cart categorization expressed by integers (such as shipping scores or weight ranges).
+    """The [ShippingRate](ctp:api:type:ShippingRate) maps to an abstract Cart categorization expressed by integers (such as shipping scores or weight ranges).
     Either `price` or `priceFunction` is required.
 
     """
@@ -623,8 +623,9 @@ class CartScoreTier(ShippingRatePriceTier):
 
 
 class CartValueTier(ShippingRatePriceTier):
-    """Used when the ShippingRate maps to the sum of [LineItem](ctp:api:type:LineItem) Prices.
-    The value of the Cart is used to select a tier.
+    """
+    The [ShippingRate](ctp:api:type:ShippingRate) maps to the value of the Cart and is used to select a tier.
+    The value of the [Cart](ctp:api:type:Cart) is the sum of all Line Item totals and Custom Line Item totals (via the `totalPrice` field) after any Product Discounts and Cart Discounts have been applied.
     If chosen, it is not possible to set a value for the `shippingRateInput` on the [Cart](ctp:api:type:Cart).
     Tiers contain the `centAmount` (a value of `100` in the currency `USD` corresponds to `$ 1.00`), and start at `1`.'
 

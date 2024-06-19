@@ -70,6 +70,7 @@ class ByProjectKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["CartPagedQueryResponse"]:
+        """Returns all Carts that match a given Query Predicate and contain either a matching `customerId` or `anonymousId`."""
         params = {
             "expand": expand,
             "sort": sort,
@@ -104,7 +105,7 @@ class ByProjectKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional[None]:
-        """Checks if a Cart exists for a given Query Predicate. Returns a `200 OK` status if any Carts match the Query Predicate or a `404 Not Found` otherwise."""
+        """Checks if a Cart exists that matches a given Query Predicate and contains either a matching `customerId` or `anonymousId`. Returns a `200 OK` status if the Cart exists, or a `404 Not Found` otherwise."""
         headers = {} if headers is None else headers
         response = self._client._head(
             endpoint=f"/{self._project_key}/me/carts",
@@ -129,6 +130,7 @@ class ByProjectKeyMeCartsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["Cart"]:
+        """Creates a Cart for a given `customerId` or `anonymousId`."""
         headers = {} if headers is None else headers
         response = self._client._post(
             endpoint=f"/{self._project_key}/me/carts",

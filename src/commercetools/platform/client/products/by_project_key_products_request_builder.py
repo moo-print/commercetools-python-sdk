@@ -9,6 +9,9 @@ import warnings
 
 from ...models.error import ErrorResponse
 from ...models.product import Product, ProductDraft, ProductPagedQueryResponse
+from ..search.by_project_key_products_search_request_builder import (
+    ByProjectKeyProductsSearchRequestBuilder,
+)
 from .by_project_key_products_by_id_request_builder import (
     ByProjectKeyProductsByIDRequestBuilder,
 )
@@ -47,6 +50,13 @@ class ByProjectKeyProductsRequestBuilder:
             client=self._client,
         )
 
+    def search(self) -> ByProjectKeyProductsSearchRequestBuilder:
+        """This endpoint provides high-performance search queries over Products. Product Search allows searching through all products with a current projection in your Project."""
+        return ByProjectKeyProductsSearchRequestBuilder(
+            project_key=self._project_key,
+            client=self._client,
+        )
+
     def get(
         self,
         *,
@@ -55,7 +65,6 @@ class ByProjectKeyProductsRequestBuilder:
         price_country: str = None,
         price_customer_group: str = None,
         price_channel: str = None,
-        locale_projection: typing.List["str"] = None,
         expand: typing.List["str"] = None,
         sort: typing.List["str"] = None,
         limit: int = None,
@@ -65,14 +74,13 @@ class ByProjectKeyProductsRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["ProductPagedQueryResponse"]:
-        """If [Price selection](ctp:api:type:ProductPriceSelection) query parameters are provided, the selected Prices are added to the response."""
+        """If [Product price selection query parameters](/../api/pricing-and-discounts-overview#product-price-selection) are provided, the selected Prices are added to the response."""
         params = {
             "where": where,
             "priceCurrency": price_currency,
             "priceCountry": price_country,
             "priceCustomerGroup": price_customer_group,
             "priceChannel": price_channel,
-            "localeProjection": locale_projection,
             "expand": expand,
             "sort": sort,
             "limit": limit,
@@ -130,13 +138,12 @@ class ByProjectKeyProductsRequestBuilder:
         price_country: str = None,
         price_customer_group: str = None,
         price_channel: str = None,
-        locale_projection: typing.List["str"] = None,
         expand: typing.List["str"] = None,
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> typing.Optional["Product"]:
         """To create a new Product, send a representation that is going to become the initial _staged_ and _current_ representation of the new Product in the catalog.
-        If [Price Selection](ctp:api:type:ProductPriceSelection) query parameters are provided, selected Prices will be added to the response.
+        If [Product price selection query parameters](/../api/pricing-and-discounts-overview#product-price-selection) are provided, selected Prices will be added to the response.
         Produces the [ProductCreated](/projects/messages#product-created) Message.
 
         """
@@ -148,7 +155,6 @@ class ByProjectKeyProductsRequestBuilder:
                 "priceCountry": price_country,
                 "priceCustomerGroup": price_customer_group,
                 "priceChannel": price_channel,
-                "localeProjection": locale_projection,
                 "expand": expand,
             },
             json=body.serialize(),

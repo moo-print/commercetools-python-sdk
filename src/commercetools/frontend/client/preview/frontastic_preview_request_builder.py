@@ -31,13 +31,7 @@ class FrontasticPreviewRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> "PagePreviewDataResponse":
-        """Returns the page structure and data for a specific [preview](/../frontend-studio/using-the-page-builder) by its `previewId`. \
-        
-        Headers&#58;
-        
-        - `Accept` - `application/json` - Required
-        
-        """
+        """Returns the page structure and data for a specific [preview](/../frontend-studio/using-the-page-builder) by its `previewId`."""
         headers = {} if headers is None else headers
         response = self._client._get(
             endpoint=f"/frontastic/preview",

@@ -161,7 +161,6 @@ class CustomerSchema(BaseResourceSchema):
         allow_none=True,
         many=True,
         unknown=marshmallow.EXCLUDE,
-        metadata={"omit_empty": True},
         load_default=None,
     )
     authentication_mode = marshmallow_enum.EnumField(
@@ -1352,7 +1351,6 @@ class CustomerSetStoresActionSchema(CustomerUpdateActionSchema):
         allow_none=True,
         many=True,
         unknown=marshmallow.EXCLUDE,
-        metadata={"omit_empty": True},
         load_default=None,
     )
 

@@ -174,6 +174,8 @@ __all__ = [
     "OrderSetShippingAddressAction",
     "OrderSetShippingAddressCustomFieldAction",
     "OrderSetShippingAddressCustomTypeAction",
+    "OrderSetShippingCustomFieldAction",
+    "OrderSetShippingCustomTypeAction",
     "OrderSetStoreAction",
     "OrderState",
     "OrderTransitionCustomLineItemStateAction",
@@ -612,6 +614,18 @@ class StagedOrderUpdateAction(_BaseType):
             )
 
             return StagedOrderSetShippingAddressCustomTypeActionSchema().load(data)
+        if data["action"] == "setShippingCustomField":
+            from ._schemas.order_edit import (
+                StagedOrderSetShippingCustomFieldActionSchema,
+            )
+
+            return StagedOrderSetShippingCustomFieldActionSchema().load(data)
+        if data["action"] == "setShippingCustomType":
+            from ._schemas.order_edit import (
+                StagedOrderSetShippingCustomTypeActionSchema,
+            )
+
+            return StagedOrderSetShippingCustomTypeActionSchema().load(data)
         if data["action"] == "setShippingMethod":
             from ._schemas.order_edit import StagedOrderSetShippingMethodActionSchema
 
@@ -1247,7 +1261,7 @@ class LineItemImportDraft(_BaseType):
     price: "PriceDraft"
     #: The tax rate used to calculate the `taxedPrice` of the Order.
     tax_rate: typing.Optional["TaxRate"]
-    #: The Channel used to [select a Price](ctp:api:type:LineItemPriceSelection).
+    #: The Channel used to [select a Price](/../api/pricing-and-discounts-overview#line-item-price-selection).
     #: This Channel must have the `ProductDistribution` role.
     distribution_channel: typing.Optional["ChannelResourceIdentifier"]
     #: The Channel used to supply Line Items.
@@ -1321,7 +1335,7 @@ class Order(BaseResource):
     #: Email address of the Customer that the Order belongs to.
     customer_email: typing.Optional[str]
     #: [Reference](ctp:api:type:Reference) to the Customer Group of the Customer that the Order belongs to.
-    #: Used for [LineItem Price selection](ctp:api:type:LineItemPriceSelection).
+    #: Used for [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection).
     customer_group: typing.Optional["CustomerGroupReference"]
     #: [Anonymous session](ctp:api:type:AnonymousSession) associated with the Order.
     anonymous_id: typing.Optional[str]
@@ -1392,7 +1406,7 @@ class Order(BaseResource):
     refused_gifts: typing.List["CartDiscountReference"]
     #: Payment information related to the Order.
     payment_info: typing.Optional["PaymentInfo"]
-    #: Used for [LineItem Price selection](ctp:api:type:LineItemPriceSelection).
+    #: Used for [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection).
     country: typing.Optional[str]
     #: Languages of the Order.
     #: Can only contain languages supported by the [Project](ctp:api:type:Project).
@@ -1425,9 +1439,9 @@ class Order(BaseResource):
     #: User-defined date and time (UTC) of the Order.
     #: Present only on an Order created using [Order Import](ctp:api:endpoint:/{projectKey}/orders/import:POST).
     completed_at: typing.Optional[datetime.datetime]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that last modified the Order.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the Order.
     created_by: typing.Optional["CreatedBy"]
 
     def __init__(
@@ -2495,6 +2509,14 @@ class OrderUpdateAction(_BaseType):
             from ._schemas.order import OrderSetShippingAddressCustomTypeActionSchema
 
             return OrderSetShippingAddressCustomTypeActionSchema().load(data)
+        if data["action"] == "setShippingCustomField":
+            from ._schemas.order import OrderSetShippingCustomFieldActionSchema
+
+            return OrderSetShippingCustomFieldActionSchema().load(data)
+        if data["action"] == "setShippingCustomType":
+            from ._schemas.order import OrderSetShippingCustomTypeActionSchema
+
+            return OrderSetShippingCustomTypeActionSchema().load(data)
         if data["action"] == "setStore":
             from ._schemas.order import OrderSetStoreActionSchema
 
@@ -3141,9 +3163,9 @@ class SyncInfo(_BaseType):
 
 
 class TaxedItemPriceDraft(_BaseType):
-    #: Draft type that stores amounts only in cent precision for the specified currency.
+    #: Draft object to store money in cent amounts for a specific currency.
     total_net: "Money"
-    #: Draft type that stores amounts only in cent precision for the specified currency.
+    #: Draft object to store money in cent amounts for a specific currency.
     total_gross: "Money"
 
     def __init__(self, *, total_net: "Money", total_gross: "Money"):
@@ -5033,6 +5055,85 @@ class OrderSetShippingAddressCustomTypeAction(OrderUpdateAction):
         from ._schemas.order import OrderSetShippingAddressCustomTypeActionSchema
 
         return OrderSetShippingAddressCustomTypeActionSchema().dump(self)
+
+
+class OrderSetShippingCustomFieldAction(OrderUpdateAction):
+    #: The `shippingKey` of the [Shipping](ctp:api:type:Shipping) to customize. Used to specify which Shipping Method to customize
+    #: on a Order with `Multiple` [ShippingMode](ctp:api:type:ShippingMode).
+    #: Leave this empty to customize the one and only ShippingMethod on a `Single` ShippingMode Order.
+    shipping_key: typing.Optional[str]
+    #: Name of the [Custom Field](/../api/projects/custom-fields).
+    name: str
+    #: If `value` is absent or `null`, this field will be removed if it exists.
+    #: Trying to remove a field that does not exist will fail with an [InvalidOperation](ctp:api:type:InvalidOperationError) error.
+    #: If `value` is provided, it is set for the field defined by `name`.
+    value: typing.Optional[typing.Any]
+
+    def __init__(
+        self,
+        *,
+        shipping_key: typing.Optional[str] = None,
+        name: str,
+        value: typing.Optional[typing.Any] = None
+    ):
+        self.shipping_key = shipping_key
+        self.name = name
+        self.value = value
+
+        super().__init__(action="setShippingCustomField")
+
+    @classmethod
+    def deserialize(
+        cls, data: typing.Dict[str, typing.Any]
+    ) -> "OrderSetShippingCustomFieldAction":
+        from ._schemas.order import OrderSetShippingCustomFieldActionSchema
+
+        return OrderSetShippingCustomFieldActionSchema().load(data)
+
+    def serialize(self) -> typing.Dict[str, typing.Any]:
+        from ._schemas.order import OrderSetShippingCustomFieldActionSchema
+
+        return OrderSetShippingCustomFieldActionSchema().dump(self)
+
+
+class OrderSetShippingCustomTypeAction(OrderUpdateAction):
+    """This action sets, overwrites, or removes any existing Custom Type and Custom Fields for the Order's `shippingMethod` or `shipping`."""
+
+    #: The `shippingKey` of the [Shipping](ctp:api:type:Shipping) to customize. Used to specify which Shipping Method to customize
+    #: on a Order with `Multiple` [ShippingMode](ctp:api:type:ShippingMode).
+    #: Leave this empty to customize the one and only ShippingMethod on a `Single` ShippingMode Order.
+    shipping_key: typing.Optional[str]
+    #: Defines the [Type](ctp:api:type:Type) that extends the specified ShippingMethod with [Custom Fields](/../api/projects/custom-fields).
+    #: If absent, any existing Type and Custom Fields are removed from the ShippingMethod.
+    type: typing.Optional["TypeResourceIdentifier"]
+    #: Sets the [Custom Fields](/../api/projects/custom-fields) fields for the `shippingMethod`.
+    fields: typing.Optional["FieldContainer"]
+
+    def __init__(
+        self,
+        *,
+        shipping_key: typing.Optional[str] = None,
+        type: typing.Optional["TypeResourceIdentifier"] = None,
+        fields: typing.Optional["FieldContainer"] = None
+    ):
+        self.shipping_key = shipping_key
+        self.type = type
+        self.fields = fields
+
+        super().__init__(action="setShippingCustomType")
+
+    @classmethod
+    def deserialize(
+        cls, data: typing.Dict[str, typing.Any]
+    ) -> "OrderSetShippingCustomTypeAction":
+        from ._schemas.order import OrderSetShippingCustomTypeActionSchema
+
+        return OrderSetShippingCustomTypeActionSchema().load(data)
+
+    def serialize(self) -> typing.Dict[str, typing.Any]:
+        from ._schemas.order import OrderSetShippingCustomTypeActionSchema
+
+        return OrderSetShippingCustomTypeActionSchema().dump(self)
 
 
 class OrderSetStoreAction(OrderUpdateAction):

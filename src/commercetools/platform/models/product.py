@@ -311,9 +311,9 @@ class Product(BaseResource):
 
     """
 
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that last modified the Product.
     last_modified_by: typing.Optional["LastModifiedBy"]
-    #: Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked).
+    #: IDs and references that created the Product.
     created_by: typing.Optional["CreatedBy"]
     #: User-defined unique identifier of the Product.
     #:
@@ -496,6 +496,8 @@ class ProductDraft(_BaseType):
     #: It must match the pattern `[a-zA-Z0-9_\\-]{2,256}`.
     slug: "LocalizedString"
     #: User-defined unique identifier for the Product.
+    #:
+    #: To update a Product using the [Import API](/../import-export/product), the Product `key` must match the pattern `^[A-Za-z0-9_-]{2,256}$`.
     key: typing.Optional[str]
     #: Description of the Product.
     description: typing.Optional["LocalizedString"]
@@ -627,7 +629,10 @@ class ProductPagedQueryResponse(_BaseType):
 
 
 class ProductPriceModeEnum(enum.Enum):
-    """This mode determines the type of Prices used for [Product Price Selection](ctp:api:type:ProductPriceSelection) and for [LineItem Price selection](ctp:api:type:LineItemPriceSelection)."""
+    """This mode determines the type of Prices used for [price selection](/../api/pricing-and-discounts-overview#price-selection) by Line Items and Products.
+    For more information about the difference between the Prices, see [Pricing](/../api/pricing-and-discounts-overview).
+
+    """
 
     EMBEDDED = "Embedded"
     STANDALONE = "Standalone"
@@ -1128,7 +1133,7 @@ class ProductVariant(_BaseType):
     prices: typing.Optional[typing.List["Price"]]
     #: Attributes of the Product Variant.
     attributes: typing.Optional[typing.List["Attribute"]]
-    #: Only available when [Price selection](#price-selection) is used.
+    #: Only available when [price selection](/../api/pricing-and-discounts-overview#price-selection) is used.
     #: Cannot be used in a [Query Predicate](ctp:api:type:QueryPredicate).
     price: typing.Optional["Price"]
     #: Images of the Product Variant.
@@ -1143,11 +1148,11 @@ class ProductVariant(_BaseType):
     #: Only available in response to a [Product Projection Search](ctp:api:type:ProductProjectionSearch) request.
     is_matching_variant: typing.Optional[bool]
     #: Only available in response to a [Product Projection Search](ctp:api:type:ProductProjectionSearch) request
-    #: with [price selection](ctp:api:type:ProductPriceSelection).
+    #: with [Product price selection](/../api/pricing-and-discounts-overview#product-price-selection).
     #: Can be used to sort, [filter](ctp:api:type:ProductProjectionSearchFilterScopedPrice), and facet.
     scoped_price: typing.Optional["ScopedPrice"]
     #: Only available in response to a [Product Projection Search](ctp:api:type:ProductProjectionSearchFilterScopedPrice) request
-    #: with [price selection](ctp:api:type:ProductPriceSelection).
+    #: with [Product price selection](/../api/pricing-and-discounts-overview#product-price-selection).
     scoped_price_discounted: typing.Optional[bool]
 
     def __init__(
@@ -1199,7 +1204,7 @@ class ProductVariantAvailability(_BaseType):
     #: For each [InventoryEntry](ctp:api:type:InventoryEntry) with a supply Channel, an entry is added to `channels`.
     channels: typing.Optional["ProductVariantChannelAvailabilityMap"]
     #: Indicates whether a Product Variant is in stock.
-    is_on_stock: bool
+    is_on_stock: typing.Optional[bool]
     #: Number of days to restock a Product Variant once it is out of stock.
     restockable_in_days: typing.Optional[int]
     #: Number of items of the Product Variant that are in stock.
@@ -1213,7 +1218,7 @@ class ProductVariantAvailability(_BaseType):
         self,
         *,
         channels: typing.Optional["ProductVariantChannelAvailabilityMap"] = None,
-        is_on_stock: bool,
+        is_on_stock: typing.Optional[bool] = None,
         restockable_in_days: typing.Optional[int] = None,
         available_quantity: typing.Optional[int] = None,
         id: typing.Optional[str] = None,
@@ -2873,6 +2878,8 @@ class ProductSetImageLabelAction(ProductUpdateAction):
 
 class ProductSetKeyAction(ProductUpdateAction):
     #: Value to set. If empty, any existing value will be removed.
+    #:
+    #: To update a Product using the [Import API](/../import-export/product), the Product `key` must match the pattern `^[A-Za-z0-9_-]{2,256}$`.
     key: typing.Optional[str]
 
     def __init__(self, *, key: typing.Optional[str] = None):
@@ -2986,11 +2993,11 @@ class ProductSetMetaTitleAction(ProductUpdateAction):
 
 
 class ProductSetPriceKeyAction(ProductUpdateAction):
-    """Sets the key of an [Embedded Price](/projects/products#embedded-price). Produces the [ProductPriceKeySet](ctp:api:type:ProductPriceKeySetMessage) Message."""
+    """Sets the key of an [Embedded Price](ctp:api:type:Price). Produces the [ProductPriceKeySet](ctp:api:type:ProductPriceKeySetMessage) Message."""
 
     #: The `id` of the [Price](ctp:api:type:Price) to set the key.
     price_id: str
-    #: If `true`, only the staged [Embedded Price](/projects/products#embedded-price) is updated. If `false`, both the current and staged Embedded Price are updated.
+    #: If `true`, only the staged [Embedded Price](ctp:api:type:Price) is updated. If `false`, both the current and staged Embedded Price are updated.
     staged: typing.Optional[bool]
     #: Value to set. If empty, any existing value will be removed.
     key: typing.Optional[str]
@@ -3341,7 +3348,10 @@ class ProductTransitionStateAction(ProductUpdateAction):
 class ProductUnpublishAction(ProductUpdateAction):
     """Removes the current [projection](/../api/projects/productProjections#current--staged) of the Product. The staged projection is unaffected. To retrieve unpublished Products, the `staged` parameter must be set to `false` when [querying](ctp:api:endpoint:/{projectKey}/product-projections:GET)/[searching](/projects/products-search#product-projection-search) Product Projections. Produces the [ProductUnpublished](ctp:api:type:ProductUnpublishedMessage) Message.
 
-    Unpublished Products cannot be added to a Cart. However, if a Cart contains Line Items for Products that were added before the Product was unpublished, the Cart is unaffected and can still be used to create an Order. To prevent this, in addition to unpublishing the Product you should remove the Prices from the Product using [Remove Price](ctp:api:type:ProductRemovePriceAction) for Embedded Prices or [Delete StandalonePrice](/projects/standalone-prices#delete-standaloneprice) for Standalone Prices.
+    When a Product is unpublished, any associated Line Items already present in a Cart remain unaffected and can still be ordered. To prevent this, do the following:
+
+    - If the Product uses Embedded Prices, [remove the Embedded Prices](ctp:api:type:ProductRemovePriceAction) from the unpublished Product.
+    - If the Product uses Standalone Prices, [inactivate](ctp:api:type:StandalonePriceChangeActiveAction) or [delete](/projects/standalone-prices#delete-standaloneprice) the Standalone Prices.
 
     """
 

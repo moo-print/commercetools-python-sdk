@@ -69,7 +69,7 @@ class MyBusinessUnitDraftSchema(helpers.BaseSchema):
         data_key="contactEmail",
     )
     custom = helpers.LazyNestedField(
-        nested=helpers.absmod(__name__, ".type.CustomFieldsSchema"),
+        nested=helpers.absmod(__name__, ".type.CustomFieldsDraftSchema"),
         allow_none=True,
         unknown=marshmallow.EXCLUDE,
         metadata={"omit_empty": True},

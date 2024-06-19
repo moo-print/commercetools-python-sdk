@@ -25,6 +25,8 @@ __all__ = [
     "AssetDimensions",
     "AssetDraft",
     "AssetSource",
+    "Attribution",
+    "AttributionSource",
     "BaseAddress",
     "BaseResource",
     "CentPrecisionMoney",
@@ -305,6 +307,39 @@ class AssetSource(_BaseType):
         from ._schemas.common import AssetSourceSchema
 
         return AssetSourceSchema().dump(self)
+
+
+class Attribution(_BaseType):
+    """Indicates the source and method that indirectly created or modified the resource. This is present on resources created or updated after 1 April 2024."""
+
+    #: `id` of the [API Client](ctp:api:type:ApiClient) that created or modified the resource.
+    client_id: typing.Optional[str]
+    #: Method used to initiate the creation or modification of the resource.
+    source: "AttributionSource"
+
+    def __init__(
+        self, *, client_id: typing.Optional[str] = None, source: "AttributionSource"
+    ):
+        self.client_id = client_id
+        self.source = source
+
+        super().__init__()
+
+    @classmethod
+    def deserialize(cls, data: typing.Dict[str, typing.Any]) -> "Attribution":
+        from ._schemas.common import AttributionSchema
+
+        return AttributionSchema().load(data)
+
+    def serialize(self) -> typing.Dict[str, typing.Any]:
+        from ._schemas.common import AttributionSchema
+
+        return AttributionSchema().dump(self)
+
+
+class AttributionSource(enum.Enum):
+    IMPORT = "Import"
+    EXPORT = "Export"
 
 
 class BaseAddress(_BaseType):
@@ -676,7 +711,10 @@ class ClientLogging(_BaseType):
 
 
 class CreatedBy(ClientLogging):
-    """Present on resources created after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked)."""
+    """IDs and references that created the resource. This is present on resources created after 1 February 2019 except for [events not tracked](/general-concepts#events-tracked)."""
+
+    #: Indicates if the resource was created indirectly.
+    attributed_to: typing.Optional["Attribution"]
 
     def __init__(
         self,
@@ -685,8 +723,10 @@ class CreatedBy(ClientLogging):
         external_user_id: typing.Optional[str] = None,
         customer: typing.Optional["CustomerReference"] = None,
         anonymous_id: typing.Optional[str] = None,
-        associate: typing.Optional["CustomerReference"] = None
+        associate: typing.Optional["CustomerReference"] = None,
+        attributed_to: typing.Optional["Attribution"] = None
     ):
+        self.attributed_to = attributed_to
 
         super().__init__(
             client_id=client_id,
@@ -893,7 +933,10 @@ class KeyReference(_BaseType):
 
 
 class LastModifiedBy(ClientLogging):
-    """Present on resources modified after 1 February 2019 except for [events not tracked](/../api/general-concepts#events-tracked)."""
+    """IDs and references that last modified the resource. This is present on resources created or updated after 1 February 2019 except for [events not tracked](/general-concepts#events-tracked)."""
+
+    #: Indicates if the resource was modified indirectly.
+    attributed_to: typing.Optional["Attribution"]
 
     def __init__(
         self,
@@ -902,8 +945,10 @@ class LastModifiedBy(ClientLogging):
         external_user_id: typing.Optional[str] = None,
         customer: typing.Optional["CustomerReference"] = None,
         anonymous_id: typing.Optional[str] = None,
-        associate: typing.Optional["CustomerReference"] = None
+        associate: typing.Optional["CustomerReference"] = None,
+        attributed_to: typing.Optional["Attribution"] = None
     ):
+        self.attributed_to = attributed_to
 
         super().__init__(
             client_id=client_id,
@@ -930,7 +975,7 @@ class LocalizedString(typing.Dict[str, str]):
 
 
 class Money(_BaseType):
-    """Draft type that stores amounts only in cent precision for the specified currency."""
+    """Draft object to store money in cent amounts for a specific currency."""
 
     #: Amount in the smallest indivisible unit of a currency, such as:
     #:
@@ -987,7 +1032,7 @@ class Price(_BaseType):
     #: Date and time until this Price is valid. Prices that are no longer valid are not automatically removed, but they can be [removed](ctp:api:type:ProductRemovePriceAction) if necessary.
     valid_until: typing.Optional[datetime.datetime]
     #: Is set if a [ProductDiscount](ctp:api:type:ProductDiscount) has been applied.
-    #: If set, the API uses the DiscountedPrice value for the [Line Item Price selection](ctp:api:type:LineItemPriceSelection).
+    #: If set, the API uses the DiscountedPrice value for the [Line Item price selection](/../api/pricing-and-discounts-overview#line-item-price-selection).
     #: When a [relative discount](ctp:api:type:ProductDiscountValueRelative) has been applied and the fraction part of the DiscountedPrice `value` is 0.5, the `value` is rounded in favor of the customer with [half-down rounding](https://en.wikipedia.org/wiki/Rounding#Round_half_down).
     discounted: typing.Optional["DiscountedPrice"]
     #: Present if different Prices for certain [LineItem](ctp:api:type:LineItem) quantities have been specified.
@@ -1616,7 +1661,7 @@ class ResourceIdentifier(_BaseType):
 
 class ScopedPrice(_BaseType):
     """Scoped Price is contained in a [ProductVariant](ctp:api:type:ProductVariant) which is returned in response to a
-    [Product Projection Search](ctp:api:type:ProductProjectionSearchFilterScopedPrice) request when [Scoped Price Search](ctp:api:type:ScopedPriceSearch) is used.
+    [Product Projection Search](ctp:api:type:ProductProjectionSearchFilterScopedPrice) request when [Scoped Price Search](/../api/pricing-and-discounts-overview#scoped-price-search) is used.
 
     """
 
@@ -1724,7 +1769,7 @@ class TypedMoney(Money):
 
 
 class CentPrecisionMoney(TypedMoney):
-    """Object that stores cent amounts in a specific currency."""
+    """Object that stores money in cent amounts of a specific currency."""
 
     def __init__(self, *, cent_amount: int, currency_code: str, fraction_digits: int):
 
@@ -1748,7 +1793,7 @@ class CentPrecisionMoney(TypedMoney):
 
 
 class HighPrecisionMoney(TypedMoney):
-    """Money object that stores an amount of a fraction of the smallest indivisible unit of the specified currency."""
+    """Object that stores money as a fraction of the smallest indivisible unit of a specific currency."""
 
     #: Amount in 1 / (10 ^ `fractionDigits`) of a currency.
     precise_amount: int
@@ -1858,7 +1903,7 @@ class CentPrecisionMoneyDraft(TypedMoneyDraft):
 
 
 class HighPrecisionMoneyDraft(TypedMoneyDraft):
-    """Money draft object to store an amount of a fraction of the smallest indivisible unit of the specified currency."""
+    """Draft object to store money as a fraction of the smallest indivisible unit for a specific currency."""
 
     #: Amount in 1 / (10 ^ `fractionDigits`) of a currency.
     precise_amount: int

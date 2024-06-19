@@ -29,13 +29,7 @@ class FrontasticContextRequestBuilder:
         headers: typing.Dict[str, str] = None,
         options: typing.Dict[str, typing.Any] = None,
     ) -> "ProjectContext":
-        """Returns information about the project locales setup and the environment in which the requested host acts in. \
-        
-        Headers&#58;
-        
-        - `Accept` - `application/json` - Required
-        
-        """
+        """Returns information about the project locales setup and the environment in which the requested host acts in."""
         headers = {} if headers is None else headers
         response = self._client._get(
             endpoint=f"/frontastic/context", params={}, headers=headers, options=options

@@ -1161,16 +1161,16 @@ class DirectDiscountDraftSchema(helpers.BaseSchema):
         discriminator_field=("type", "type"),
         discriminator_schemas={
             "absolute": helpers.absmod(
-                __name__, ".cart_discount.CartDiscountValueAbsoluteSchema"
+                __name__, ".cart_discount.CartDiscountValueAbsoluteDraftSchema"
             ),
             "fixed": helpers.absmod(
-                __name__, ".cart_discount.CartDiscountValueFixedSchema"
+                __name__, ".cart_discount.CartDiscountValueFixedDraftSchema"
             ),
             "giftLineItem": helpers.absmod(
-                __name__, ".cart_discount.CartDiscountValueGiftLineItemSchema"
+                __name__, ".cart_discount.CartDiscountValueGiftLineItemDraftSchema"
             ),
             "relative": helpers.absmod(
-                __name__, ".cart_discount.CartDiscountValueRelativeSchema"
+                __name__, ".cart_discount.CartDiscountValueRelativeDraftSchema"
             ),
         },
         load_default=None,

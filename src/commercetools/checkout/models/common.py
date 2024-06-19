@@ -15,7 +15,7 @@ __all__ = ["Amount", "PaymentAction", "PaymentOperation", "Region"]
 
 
 class Region(enum.Enum):
-    """The Region in which the Checkout application is [hosted](/../checkout/installing-checkout#regions-and-hosts)."""
+    """The Region in which the Checkout application is [hosted](/../checkout/hosts-and-authorization)."""
 
     EUROPE_WEST1.GCP = "europe-west1.gcp"
     US_CENTRAL1.GCP = "us-central1.gcp"
@@ -60,7 +60,7 @@ class PaymentOperation(enum.Enum):
 
 
 class PaymentAction(_BaseType):
-    """Depending on the action specified, Checkout requests the [payment service provider](/../checkout/configuring-checkout#supported-psps) (PSP) to capture, refund, or cancel the authorization for the given Payment."""
+    """Depending on the action specified, Checkout requests the [payment service provider](/../checkout/payment-connectors-applications#supported-psps) (PSP) to capture, refund, or cancel the authorization for the given Payment."""
 
     #: Action to execute for the given Payment.
     action: "PaymentOperation"

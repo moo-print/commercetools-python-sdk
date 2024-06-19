@@ -312,30 +312,16 @@ class ShippingMethodUpdateActionSchema(helpers.BaseSchema):
 
 
 class ShippingRateSchema(helpers.BaseSchema):
-    price = helpers.Discriminator(
+    price = helpers.LazyNestedField(
+        nested=helpers.absmod(__name__, ".common.CentPrecisionMoneySchema"),
         allow_none=True,
-        discriminator_field=("type", "type"),
-        discriminator_schemas={
-            "centPrecision": helpers.absmod(
-                __name__, ".common.CentPrecisionMoneySchema"
-            ),
-            "highPrecision": helpers.absmod(
-                __name__, ".common.HighPrecisionMoneySchema"
-            ),
-        },
+        unknown=marshmallow.EXCLUDE,
         load_default=None,
     )
-    free_above = helpers.Discriminator(
+    free_above = helpers.LazyNestedField(
+        nested=helpers.absmod(__name__, ".common.CentPrecisionMoneySchema"),
         allow_none=True,
-        discriminator_field=("type", "type"),
-        discriminator_schemas={
-            "centPrecision": helpers.absmod(
-                __name__, ".common.CentPrecisionMoneySchema"
-            ),
-            "highPrecision": helpers.absmod(
-                __name__, ".common.HighPrecisionMoneySchema"
-            ),
-        },
+        unknown=marshmallow.EXCLUDE,
         metadata={"omit_empty": True},
         load_default=None,
         data_key="freeAbove",
